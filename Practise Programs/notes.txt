@@ -1,0 +1,146 @@
+evaluation of postfix:
+scan the expression from left to right.
+if operand, push into the stack. 
+if operator, pop out preceding two elements and carry out the operation specified by the operator.
+note that the first element popped would be the second operand while the second element popped would be the first operand.
+repeat the process until you are done with all operators/operands.
+
+evaluation of prefix:
+scan the expression from right to left.
+if operand, push into the stack. 
+if operator, pop out preceding two elements and carry out the operation specified by the operator.
+note that the first element popped would be the first operand while the second element popped would be the second operand.
+repeat the process until you are done with all operators/operands.
+
+infix to postfix logic:
+in converstion, position of operators may change but position of operands wont change
+for operands, simply append them to the postfix expression
+for operators, push them into a stack
+rule: if the operator going to be pushed as lower precendence that the top operator already in the stack,
+the operator in the stack is first popped and inserted into the postfix expression before the lower priority operator is pushed into stack
+i.e, in the stack, an operator of lower priority cannot sit on top of an operator with higher priority
+if the end of the expression is reached with operators still in the stack, simply pop them until empty stack
+how to deal with aprenthesis:
+if there's an opening parenthesis, simply push it into the stack
+whiel pushing an operator into a stack, if top is an opening bracket do not pop anything and push the operator into the stack
+if there's a closing parenthesis, pop all operators in the stack until an opening parenthesis and then pop it as well.
+
+LINKED LISTS:
+
+Note: nth means counting starts at 1, index n means counting starts at 0;
+
+to traverse a linked list:
+while (p != NULL) //complete traversal
+or
+while (p -> next != NULL) // p is tail pointer
+or
+for (int i = 0; i < length; i++) //for loop complete traversal
+or 
+for (int i = 0; i < length - 1; i++) //p is tail pointer
+{
+  p = p -> next
+}
+
+to reach nth node
+for (int i = 0; i < n - 1; i++) { //nth node as in 1st, 2nd, 3rd...nth node
+  p -> next;
+}
+or to reach node at index 
+for (int i = 0; i < index; i++) { 
+  p -> next;
+}
+
+#rotate a linked list counterclockwise by 'k' nodes:
+*make the next node of the kth node (starting count from 1) point to Null
+*make the next pointer of the last node equal to the head pointer ie next of the last node points to the first node
+*change the head pointer to point to the (k+1)th node instead
+
+#rotate a linked list clockwise by 'k' nodes:
+*first check where k exceeds the length of the list, if it does, simply take k = k % length
+*put k = length - k
+*the problem now reduces to a rotate counterclockwise question, follow the algorithm 
+
+#find nth node from the end
+*nth node from the end means the (length + 1 - n)th node from the start
+*follow normal traversal to nth node
+
+#delete last occurance of an item from a linked list:
+*create a variable to store the index of the last occurance of the key(element to be found)
+*iterate over the linked list, if p -> data is equal to the key, update variable to store the current index, keep traversing and updating until p = NULL;
+*if the variable index = 0, make head point to the head -> next node and remove the previous head node (ie index 0)
+*else, create a pointer to the node at index (n-1) and remove the node at index n by accordingly adjusting the links
+
+#returning or deleting middle node
+* a note, middle note is given by length/2, which returns the 'index' of the middle node (counting starts from 0)
+
+#remove duplicates from a sorted linked list
+*create a pointer to the head of the linked list
+*iterate through each element of the linked list until the last element (p -> next == NULL), at each stage, compare p -> data with the data field of the next node, if they are equal, remove the next node.
+
+#detect loop in a linked list
+* Floyd's cycle finding algorithm (ref: https://www.geeksforgeeks.org/detect-loop-in-a-linked-list/)
+
+//Q11 Merge a linked list into another linked list at alternate positions
+
+
+TREES:
+
+in trees and graphs, the 'links' between nodes are called edges 
+in trees:
+depth of node 'x' - distance from root node to 'x', starting from root = 0
+height of node 'x' - longest path from node x to a leaf node
+complete binary tree - all nodes have two children except possibly the nodes that occupy the last non-leaf level. And the nodes should be left most as possible.
+almost complete binary tree - nodes should be left most as possible, all nodes need not have two children. 
+NOTE: for complete/almost complete, the level before the one that has missing nodes should be completely full. They are a full binary free uptill h-1 level, and at 'h' level elements are filled from left to right.
+the min height of a complete/ almost complete bin tree is log base 2 n
+if all the levels are filled/no more space for a new node - perfect binary tree/ full binary tree; Formula: 2^(h+1) - 1
+every full bin. tree is a complete bin. tree, but the converse need not be true
+
+HEAPS:
+
+heap is an almost comp./comp. bin tree; can be either max (parents have the greater element) or min heap (children have the greater element)
+
+for a complete/almost complete bin tree, if elements are filled level by leve, the following prop. is obeyed:
+if indexing starts at 0: lindex = 2i + 1 and rindex = 2i + 2; parent = ceil(i/2) - 1
+if indexing starts at 1: lindex = 2i, rindex = 2i + 1; parent = floor(i/2)
+*note that is has to be atleast an almost complete binary tree for the formulas to work
+
+# maxHeapify
+
+
+#inserting an element in a max heap: TC: O(log base 2 n) 
+insert the element at the (len+1)th node (as a leaf)
+swap compare this new node with it's parent, swap if it's greater, repeat until parent is larger than new element or new element is at root
+
+#deleting an element in a max heap: TC: 0(log base 2 n)
+you can only remove root element from the heap
+swap root (max element) and last element (min element) of heap and reduce the length of heap by 1
+then, apply maxHeapify on root pos
+
+#building a max heap: 
+*run a loop starting from non-leaf nodes to the root node (ie. from floor(len/2) to 1)
+*apply maxHeapify at every node, this ensures that each individual sub tree is a heap (comparisions are made downwards)
+*used when you already have a full bin. tree, but it doesn't have heap property
+*TC: O(n)
+(or)
+*use the method of inserting elements in a max heap and build a heap from there (comparisions are made upwards)
+*used when you wanna build the heap from scratch
+*TC: O(n log base 2 n)
+
+#Heap Sort
+create heap from array using buildMaxHeap | Note: TC for building a heap: O(n log n) [no of elements inserted * TC of inserting an element ie O(log n) ]
+delete all elements of the array ie perform the following for all elements of the array but 1 (since the last element will automatically be sorted):
+*swap root with last element and reduce the length of the heap by 1
+*then, apply maxHeapify on root pos
+
+*while inserting an element into a heap, we insert it at the leaf node and compare it with the parent (comparision moving upwards)
+*while deleting an element from a heap, we swap the last element and root element, and then apply maxHeapify on the root node (comparision moving downwards)
+
+PRIORITY QUEUES:
+data structures in which elements with highest priority are removed first
+priority can either be represented by min num. corresponds to highest priority or max num. corresponds to highest priority
+for the former case, we use a min heap and for the latter case we use a max heap
+using a head: TC for inserting or deleting an element will only be O(log base 2 n), if priority queue were to be implemented using an array, TC would be O(n) for the same operation
+
+GRAPHS:
+parameters: vertices (nodes) and edges (links)
