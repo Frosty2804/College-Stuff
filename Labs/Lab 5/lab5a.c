@@ -1,66 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//Implementation of graph and performing breath first search
+int** graph, v;
 
-typedef struct node {
-  int data;
-  struct node* next;
-} node;
-
-typedef struct graph {
-  int e, v;
-  int** adjMatrix;
-} graph;
-
-graph* g = NULL;
-
-void graphAddEdge(graph* g, int start, int end) {
-  if (start > g -> v || end > g -> v) {
-    printf("Invalid.");
-    return;
+int** constructGraph(int** graph) {
+  graph = (int**) malloc(sizeof(int*) * v);
+  for (int i = 0; i < v; i++) {
+    graph[i] = (int*) calloc(sizeof(int), v);
   }
-  g -> adjMatrix[start][end] = 1;
+  int e;
+  printf("Enter number of edges: "); scanf("%d", &e);
+  int counter = 0;
+  while (counter < e) {
+    int a, b;
+    printf("Enter two points connected by a edge: "); scanf("%d %d", &a, &b);
+    if ((a != b) && (a < v) && (b < v)) {
+      graph[a][b] = 1, graph[b][a] = 1;
+      counter++;
+    }
+    else printf("\nInvalid.");
+  }
+  return graph;
 }
 
-graph* createGraph() {
-  graph* g = (graph*) malloc(sizeof(graph));
-  int noOfVertices, noOfEdges;
-  printf("\nEnter number of vertices: "); scanf("%d", &noOfVertices);
-  printf("\nEnter the number of edges: "); scanf("%d", &noOfEdges);
-  g -> v = noOfVertices, g -> e = noOfEdges;
-  g -> adjMatrix = (int**) malloc(sizeof(int*) * noOfVertices);
-  for (int i = 0; i < noOfVertices; i++) {
-    g -> adjMatrix[i] = (int*) calloc(sizeof(int), noOfVertices);
-  }
-  printf("Enter edges: ");
-  for (int i = 0; i < noOfEdges; i++) {
-    int firstVertice, secondVertice;
-    printf("\nEnter first vertice and second vertice: "); scanf("%d %d", &firstVertice, &secondVertice);
-    graphAddEdge(g, firstVertice, secondVertice);
-  }
-  return g;
-}
-
-void graphBFS(int v) {
-  int* visitedArray = (int*) calloc(sizeof(int), g -> v);
-  int queue[g -> v], front = 0, rear = 0;
-  visitedArray[v] = 1, queue[rear++] = v;
-
-  while (front != rear) {     //while queue is not empty
-    v = queue[front++];
-    printf("%d ", v);
-    for (int adjacent = 0; adjacent < g -> v; adjacent++) {
-      if (g-> adjMatrix [v][adjacent] == 1 && visitedArray[adjacent] == 0) {
-        visitedArray[adjacent] = 1;
-        queue[rear++] = adjacent;
+void BFS(int** graph, int i) {
+  printf("BFS Traversal: \n");
+  int* visited = (int*) calloc(sizeof(int), v);
+  int queue[v], front = -1, rear = front;
+  printf("%d ", i);
+  visited[i] = 1;
+  queue[++rear] = i;
+  while (front != rear) {
+    int u = queue[++front];
+    for (int adj = 0; adj < v; adj++) {
+      if (graph[u][adj] == 1 && !visited[adj]) {
+        printf("%d ", adj);
+        visited[adj] = 1;
+        queue[++rear] = adj;
       }
     }
   }
 }
 
+void DFS(int** graph, int i, int* visited) {
+  if (visited == NULL) {
+    printf("DFS Traversal: \n");
+    visited = (int*) calloc(sizeof(int), v);
+  }
+  printf("%d ", i);
+  visited[i] = 1;
+  for (int adj = 0; adj < v; adj++) {
+    if (graph[i][adj] == 1 && !visited[adj]) DFS(graph, adj, visited);
+  }
+}
+
+void displayAdjM(int** graph) {
+  for (int i = 0; i < v; i++) {
+    for (int j = 0; j < v; j++) {
+      printf("%d ", graph[i][j]);
+    }
+    printf("\n");
+  }
+} 
+
 void main() {
-g = createGraph();
-printf("BFS Traversal: \n");
-graphBFS(0);
+  printf("Enter number of vertices: "); scanf("%d", &v);
+  graph = constructGraph(graph);
+  DFS(graph, 0, NULL);
 }
