@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <limits.h>
 
+typedef struct node {
+  int data;
+  struct node* next;
+} node;
+
 int** graph, v;
 
 int** constructGraph(int** graph) {
@@ -33,7 +38,7 @@ int* findMinEdge(int** graph) {
   int min = INT_MAX, *minIndex = (int*) calloc(sizeof(int), 2);
   for (int i = 0; i < v; i++) {
     for (int j = 0; j < v; j++) {
-      if (i > j && graph[i][j] < min) {    //check only the lower triangular matrix
+      if (j > i && graph[i][j] < min) {    //check only the upper triangular matrix
         min = graph[i][j];
         minIndex[0] = i, minIndex[1] = j;
       }
@@ -53,16 +58,30 @@ int* findMinNearEdge(int** graph, int* near) {
   return minIndex;
 }
 
-int* primMST(int** graph) {
+node* addEdge(node* edgePtr, int start, int current) {
+  node* p = (node*) malloc(sizeof(node)), *q = (node*) malloc(sizeof(node));
+  p -> data = start, p -> next = q;
+  q -> data = current, q -> next = NULL;
+  edgePtr = p;
+  return edgePtr;
+}
+
+node** primMST(int** graph) {
   //we need two additional data structures
-  int* MST = (int*) malloc(sizeof(int) * v), near[v];  //near is used to store the closer between two vertices from any other vertice
+  node** MST = (node**) malloc(sizeof(node*) * (v-1));  //a list of linked list headers to store edges
+  for (int i = 0; i < v - 1; i++) {
+    MST[i] = (node*) malloc(sizeof(node));
+    MST[i] = NULL;
+  }
+  int* near = (int*) malloc(sizeof(int) * v) ;  //near is used to store the closer between two vertices from any other vertice
   for (int i = 0; i < v; i++) {
     near[i] = INT_MAX;
   }
   //initial step
   int* minEdge = findMinEdge(graph);
   int start = minEdge[0], current = minEdge[1];
-  MST[0] = start, MST[1] = current; //the minimum edge is stored as the first edge in the MST
+  //the minimum edge is stored as the first edge in the MST
+  MST[0] = addEdge(MST[0], start, current);
   near[start] = near[current] = -1;
   //filling near array
   for (int i = 0; i < v; i++) {
@@ -71,11 +90,12 @@ int* primMST(int** graph) {
       else near[i] = current;
     }
   }
-  for(int i = 2; i < v; i++) {
+  for(int i = 1; i < v - 1; i++) {
     minEdge = findMinNearEdge(graph, near);
-    MST[i] = minEdge[1];
+    start = minEdge[0], current = minEdge[1];
+    MST[i] = addEdge(MST[i], start, current);
     //filling near array again
-    current = MST[i], near[current] = -1;
+    near[current] = -1;
     for (int i = 0; i < v; i++) {
       if (near[i] != -1 && graph[i][current] < graph[i][near[i]]) near[i] = current;
     }
@@ -83,20 +103,22 @@ int* primMST(int** graph) {
   return MST;
 }
 
-void displayAdjM(int** graph) {
-  for (int i = 0; i < v; i++) {
-    for (int j = 0; j < v; j++) {
-      printf("%d ", graph[i][j]);
+void displayMSTEdges(node** MST) {
+  for (int i = 0; i < v - 1; i++) {
+    node* p = MST[i];
+    printf("Edge %d: ", i + 1);
+    while (p != NULL) {
+      printf("%d ", p -> data);
+      if (p -> next != NULL) printf("-> ");
+      p = p -> next;
     }
     printf("\n");
   }
-} 
+}
 
 void main() {
   printf("Enter number of vertices: "); scanf("%d", &v);
   graph = constructGraph(graph);
-  int* MST = primMST(graph);
-  for (int i =0; i < v; i++) {
-    printf("%d ", MST[i]);
-  }
+  node** MST = primMST(graph);
+  displayMSTEdges(MST);
 }
